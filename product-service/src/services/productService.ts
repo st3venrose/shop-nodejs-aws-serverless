@@ -1,18 +1,21 @@
-import { ProductServiceInterface, ProductInterface } from './products';
-import productList from './productList.json'
+import { Product } from '@models/products';
+import productList from '@models/productList.json'
+import { winstonLogger } from "@utils/winstonLogger";
+import { ResourceNotFound } from "@utils/resourceNotFound";
 
-export class ProductService implements ProductServiceInterface {
-  getAllProducts(): Promise<ProductInterface[]> {
+export class ProductService {
+  getAllProducts(): Promise<Product[]> {
     return Promise.resolve(productList);
   }
 
-  getProductsById(productId: string): Promise<ProductInterface> {
-    const product = productList.find(product => product.id === productId)
+  getProductsById(productId: string): Promise<Product> {
+    const product = productList.find(product => product.id === productId);
 
     if (!product) {
-      throw new Error("Id does not exit");
+      throw new ResourceNotFound("Product not found.");
     }
 
+    winstonLogger.logInfo(`Product id: ${product.id}`);
     return Promise.resolve(product)
   }
 }
