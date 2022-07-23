@@ -1,1 +1,3 @@
 .vscode
+# envs
+*/.env.local
