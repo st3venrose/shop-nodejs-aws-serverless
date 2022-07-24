@@ -13,3 +13,6 @@ coverage
 
 # swagger
 swagger
+
+# envs
+*/.env.local
