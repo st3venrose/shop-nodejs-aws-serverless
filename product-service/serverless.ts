@@ -1,6 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 import getProductsList from '@functions/getProductsList';
 import getProductsById from '@functions/getProductsById';
+import createProduct from '@functions/createProduct';
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
@@ -12,7 +13,7 @@ const serverlessConfiguration: AWS = {
     runtime: 'nodejs14.x',
     profile: 'node-aws',
     region: 'eu-central-1',
-    stage: 'dev',
+    stage: '${opt:stage}',
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
@@ -26,9 +27,30 @@ const serverlessConfiguration: AWS = {
       PGPASSWORD: '${env:PGPASSWORD}',
       PGPORT: '${env:PGPORT}',
     },
+    iam: {
+      role: {
+        // needs for add lambda to VPC
+        statements: [
+          {
+              Effect: 'Allow',
+              Action: [
+                  'logs:CreateLogGroup',
+                  'logs:CreateLogStream',
+                  'logs:PutLogEvents',
+                  'ec2:CreateNetworkInterface',
+                  'ec2:DescribeNetworkInterfaces',
+                  'ec2:DeleteNetworkInterface',
+                  'ec2:AssignPrivateIpAddresses',
+                  'ec2:UnassignPrivateIpAddresses'
+              ],
+              Resource: '*'
+          }
+        ]
+      }
+    }
   },
   // import the function via paths
-  functions: { getProductsList, getProductsById },
+  functions: { getProductsList, getProductsById, createProduct },
   package: { individually: true },
   custom: {
     currentStage: '${opt:stage, self:provider.stage}',
@@ -46,10 +68,9 @@ const serverlessConfiguration: AWS = {
     autoswagger: {
       title: 'Product service',
       apiType: 'http',
-      schemes: ['https'],
-      typefiles: ["./src/models/products.ts"],
-      useStage: true,
-      basePath: '/${self:custom.currentStage}',
+      schemes: ['https', 'http'],
+      typefiles: ['./src/models/api-types.d.ts', './src/models/product.ts'],
+      basePath: '/${self:provider.stage}'
     },
     stages: ['dev', 'prod']
   },

@@ -7,7 +7,7 @@
     "sls:deploy:prod": "serverless deploy --stage prod",
     "sls:deploy:dev": "serverless deploy --stage dev",
     "sls:package": "serverless package",
-    "sls:offline": "serverless offline --stage dev",
+    "sls:offline": "serverless offline start --stage dev",
     "sls:swagger": "serverless generate-swagger --stage dev",
     "debug": "SET SLS_DEBUG=* && node --inspect node_modules\\serverless\\bin\\serverless offline",
     "test": "jest --no-cache"

@@ -1,10 +1,14 @@
 import { StatusCodes } from 'http-status-codes';
 import productList from '@models/productList.json';
+import { ProductService } from '@services/productService'
+import { ResourceNotFound } from "@utils/exceptions";
 import { main } from './handler';
 
 describe("getProductsById", () => {
 
   it('should receive product by id', async () => {
+    jest.spyOn(ProductService.prototype, 'getProductsById')
+      .mockImplementation(() => Promise.resolve(productList[0]));
     const event = {
       pathParameters: {
         productId: '7567ec4b-b10c-48c5-9345-fc73c48a80aa'
@@ -18,6 +22,8 @@ describe("getProductsById", () => {
   });
 
   it('should throw exception when productId is invalid', async () => {
+    jest.spyOn(ProductService.prototype, 'getProductsById')
+      .mockImplementation(() => {throw new ResourceNotFound('Product not found.')});
     const event = {
       pathParameters: {
         productId: 'invalid-product-id'
