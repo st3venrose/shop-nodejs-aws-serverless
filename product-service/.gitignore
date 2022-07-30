@@ -13,3 +13,7 @@ coverage
 
 # swagger
 swagger
+
+# envs
+.env.dev
+.env.prod

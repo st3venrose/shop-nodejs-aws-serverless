@@ -4,7 +4,7 @@ import { formatJSONResponse, formatErrorResponse } from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
 import { winstonLogger } from "@utils/winstonLogger";
 import { ProductService } from '@services/productService'
-import { ResourceNotFound } from "@utils/resourceNotFound";
+import { ResourceNotFound } from "@utils/exceptions";
 import schema from './schema';
 
 const getProductsById: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
