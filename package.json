@@ -16,7 +16,10 @@
     "url": "https://github.com/st3venrose/shop-nodejs-aws-serverless/issues"
   },
   "homepage": "https://github.com/st3venrose/shop-nodejs-aws-serverless#readme",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
     "eslint": "^8.20.0"
   }
 }

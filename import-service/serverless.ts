@@ -2,7 +2,7 @@ import type { AWS } from '@serverless/typescript';
 
 import importProductsFile from '@functions/importProductsFile';
 import importFileParser from '@functions/importFileParser';
-import { AWS_CONFIG } from '@utils/constants';
+// import { AWS_CONFIG } from '@utils/constants';
 
 const serverlessConfiguration: AWS = {
   service: 'import-service',
@@ -21,28 +21,44 @@ const serverlessConfiguration: AWS = {
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
-      BUCKET: AWS_CONFIG.BUCKET_NAME,
-      REGION: '${self:provider.region}'
+      BUCKET_NAME: 'import-service-products-bucket-${opt:stage}',
+      REGION: '${self:provider.region}',
+      CATALOG_QUEUE_URL: {
+        'Fn::ImportValue': 'catalogItemsQueueUrl-${opt:stage}',
+      },
+      CATALOG_QUEUE_ARN: {
+        'Fn::ImportValue': 'catalogItemsQueueArn-${opt:stage}',
+      },
     },
     iam: {
       role: {
-        name: 'access-to-imported-bucket-${self:provider.stage}-role',
+        name: 'import-service-access-to-products-bucket-${self:provider.stage}-role',
         statements: [
           {
-            Effect: "Allow",
-            Action: "s3:ListBucket",
-            Resource: "*"
+            Effect: 'Allow',
+            Action: 's3:ListBucket',
+            Resource: '*'
           },
           {
-            Effect: "Allow",
+            Effect: 'Allow',
             Action: [
-              "s3:GetObject",
-              "s3:PutObject",
-              "s3:DeleteObject"
+              's3:GetObject',
+              's3:PutObject',
+              's3:DeleteObject'
             ],
             Resource: [
-              "arn:aws:s3:::${self:provider.environment.BUCKET}/*"
+              'arn:aws:s3:::${self:provider.environment.BUCKET_NAME}/*'
             ]
+          },
+          {
+            Effect: 'Allow',
+            Action: [
+              'sqs:SendMessage',
+              'sqs:ReceiveMessage',
+            ],
+            Resource: {
+                'Fn::ImportValue': 'catalogItemsQueueArn-${opt:stage}',
+              },
           }
         ]
       }
@@ -63,7 +79,7 @@ const serverlessConfiguration: AWS = {
       concurrency: 10,
     },
     autoswagger: {
-      title: 'Product service',
+      title: 'Import service',
       apiType: 'http',
       schemes: ['https', 'http'],
       basePath: '/${self:provider.stage}',
@@ -76,7 +92,7 @@ const serverlessConfiguration: AWS = {
       ShopNodejsImportServiceBucket: {
           Type: 'AWS::S3::Bucket',
           Properties: {
-            BucketName: '${self:provider.environment.BUCKET}',
+            BucketName: '${self:provider.environment.BUCKET_NAME}',
             CorsConfiguration: {
               CorsRules: [
                 {
