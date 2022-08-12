@@ -1,0 +1,22 @@
+{
+  "name": "shop-nodejs-aws-serverless",
+  "version": "1.0.0",
+  "description": "**URLS**",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/st3venrose/shop-nodejs-aws-serverless.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/st3venrose/shop-nodejs-aws-serverless/issues"
+  },
+  "homepage": "https://github.com/st3venrose/shop-nodejs-aws-serverless#readme",
+  "dependencies": {
+    "eslint": "^8.20.0"
+  }
+}
