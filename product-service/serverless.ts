@@ -27,6 +27,7 @@ const serverlessConfiguration: AWS = {
       PGDATABASE: '${env:PGDATABASE}',
       PGPASSWORD: '${env:PGPASSWORD}',
       PGPORT: '${env:PGPORT}',
+      SNS_CREATE_PRODUCT_TOPIC_ARN: { Ref : 'createProductTopic' }
     },
     iam: {
       role: {
@@ -45,6 +46,23 @@ const serverlessConfiguration: AWS = {
                   'ec2:UnassignPrivateIpAddresses'
               ],
               Resource: '*'
+          }, {
+            Effect: 'Allow',
+            Action: [
+              'sns:Publish',
+              'sns:Subscribe',
+              'sns:CreateTopic',
+              'sns:GetTopicAttributes',
+              'sns:SetTopicAttributes',
+              'sns:TagResource',
+              'sns:UntagResource',
+              'sns:ListTagsForResource',
+              'sns:ListSubscriptionsByTopic'
+            ],
+            Resource: [
+              // '${self:provider.environment.SNS_CREATE_PRODUCT_TOPIC_ARN}'
+              '*'
+            ]
           }
         ]
       }
@@ -54,7 +72,6 @@ const serverlessConfiguration: AWS = {
   functions: { getProductsList, getProductsById, createProduct, catalogBatchProcess },
   package: { individually: true },
   custom: {
-    currentStage: '${opt:stage, self:provider.stage}', // TODO
     esbuild: {
       bundle: true,
       minify: false,
@@ -82,7 +99,31 @@ const serverlessConfiguration: AWS = {
         Type: 'AWS::SQS::Queue',
         Properties: {
           QueueName: 'sqs-queue-${self:provider.stage}-catalogItemsQueue',
-          // FifoQueue: true
+        }
+      },
+      createProductTopic: {
+        Type: 'AWS::SNS::Topic',
+        Properties: {
+          TopicName: 'createProductTopic'
+        }
+      },
+      createProductTopicSubscription: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Protocol: 'email',
+          Endpoint: '${env:EMAIL_ADDRESS1}',
+          TopicArn: { Ref : 'createProductTopic' }
+        }
+      },
+      createProductTopicFilteredSubscription: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Protocol: 'email',
+          Endpoint: '${env:EMAIL_ADDRESS2}',
+          TopicArn: { Ref : 'createProductTopic' },
+          FilterPolicy: {
+            price: [{ numeric: [ ">=", 1000 ] }]
+          }
         }
       }
     },
@@ -104,6 +145,5 @@ const serverlessConfiguration: AWS = {
     }
   }
 };
-// ${self:custom.stage}
 
 module.exports = serverlessConfiguration;

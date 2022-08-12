@@ -20,8 +20,8 @@ class WinstonLogger {
       });
   }
 
-  logInfo(message: string){
-    this.logger.info(message);
+  logInfo(...messages: string[]){
+    this.logger.info(...messages);
   }
 
   logRequest(event: Object){

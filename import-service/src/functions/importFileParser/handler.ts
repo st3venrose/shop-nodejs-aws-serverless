@@ -1,14 +1,13 @@
 import { S3, SQS } from 'aws-sdk';
-import { S3Event } from "aws-lambda";
+import { S3Event } from 'aws-lambda';
 import csv from 'csv-parser';
 import { middyfy } from '@libs/lambda';
-import { winstonLogger } from "@utils/winstonLogger";
+import { winstonLogger } from '@utils/winstonLogger';
 import { FOLDER } from '@utils/constants';
 
 const { REGION, BUCKET_NAME, CATALOG_QUEUE_URL } = process.env;
 
-const sqsInstance = new SQS({apiVersion: '2012-11-05'});
-
+const sqsInstance = new SQS({ apiVersion: '2012-11-05' });
 
 const sendSqsMessage = (product) => {
   console.log('SEND MESSAGE');
@@ -16,7 +15,6 @@ const sendSqsMessage = (product) => {
     MessageBody: product,
     QueueUrl: CATALOG_QUEUE_URL,
   };
-  console.log('QueueUrl', CATALOG_QUEUE_URL);
   console.log('params', params);
 
   sqsInstance.sendMessage(params, (err,result) => {
@@ -24,7 +22,7 @@ const sendSqsMessage = (product) => {
       console.log(err)
       return;
     }
-    console.log('SQS result: ',result)
+    console.log('SQS result: ', result)
   })
 };
 
@@ -80,7 +78,7 @@ const parseCsvData = async (s3Stream): Promise<void> => {
           winstonLogger.logError('Parsing csv error: ' + err);
           reject(err);
         });
-  });
+    });
 };
 
 const importFileParser = async (event: S3Event): Promise<void> => {
