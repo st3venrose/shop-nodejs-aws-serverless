@@ -1,6 +1,6 @@
 import { Client } from 'pg';
-import { InternalError } from "@utils/exceptions";
-import { winstonLogger } from "@utils/winstonLogger";
+import { InternalServerError } from '@utils/exceptions';
+import { logger } from '@services/loggerService';
 
 export class DatabaseConnection {
   private databaseClient: Client;
@@ -9,17 +9,17 @@ export class DatabaseConnection {
     this.connectToDatabase();
   }
 
-  private connectToDatabase() {
+  getDatabaseClient(): Client {
+    return this.databaseClient;
+  }
+
+  private connectToDatabase(): void {
     try {
       this.databaseClient = new Client();
       this.databaseClient.connect();
-    } catch (e) {
-      winstonLogger.logError(e);
-      throw new InternalError('Database connection is failed');
+    } catch (err) {
+      logger.logError(err);
+      throw new InternalServerError('Database connection is failed.');
     }
-  }
-
-  getDatabaseClient() {
-    return this.databaseClient;
   }
 }

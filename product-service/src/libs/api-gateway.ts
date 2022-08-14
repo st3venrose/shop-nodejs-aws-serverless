@@ -1,7 +1,7 @@
-import type { APIGatewayProxyEvent, APIGatewayProxyResult, Handler } from "aws-lambda"
-import type { FromSchema } from "json-schema-to-ts";
+import type { APIGatewayProxyEvent, APIGatewayProxyResult, Handler } from 'aws-lambda'
+import type { FromSchema } from 'json-schema-to-ts';
 
-type ValidatedAPIGatewayProxyEvent<S> = Omit<APIGatewayProxyEvent, 'body'> & { body: FromSchema<S> }
+export type ValidatedAPIGatewayProxyEvent<S> = Omit<APIGatewayProxyEvent, 'body'> & { body: FromSchema<S> } // TODO
 type ResponseHeader = { [header: string]: string | number | boolean; }
 
 export type ValidatedEventAPIGatewayProxyEvent<S> = Handler<ValidatedAPIGatewayProxyEvent<S>, APIGatewayProxyResult>

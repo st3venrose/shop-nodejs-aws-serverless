@@ -1,31 +1,24 @@
-import AWS from 'aws-sdk';
-import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
-import { formatJSONResponse } from '@libs/api-gateway';
-import { middyfy } from '@libs/lambda';
-import { winstonLogger } from "@utils/winstonLogger";
+import type { APIGatewayProxyResult } from 'aws-lambda';
+import { httpResponse, formatErrorResponse } from '@libs/api-gateway';
+import { BucketService } from '@services/bucketService';
+import { logger } from '@services/loggerService';
+import { BUCKET_FOLDERS } from '@utils/constants';
 
-const { BUCKET, REGION } = process.env;
-const URL_EXPIRATION_TIME_IN_SEC = 60;
+const { REGION, BUCKET_NAME } = process.env;
 
-const importProductsFile = async (event) => {
+const importProductsFile = async (event): Promise<APIGatewayProxyResult> => {
   try {
-    const s3 = new AWS.S3({ region: REGION });
+    logger.logLambdaEvent(event);
+    const bucketService = new BucketService(REGION, BUCKET_NAME);
     const fileName = event.queryStringParameters.name;
-    const filePath = `uploaded/${fileName}`;
+    const filePath = `${BUCKET_FOLDERS.UPLOADED_FILES}/${fileName}`;
 
-    const params = {
-        Bucket: BUCKET,
-        Key: filePath,
-        Expires: URL_EXPIRATION_TIME_IN_SEC,
-        ContentType: 'text/csv'
-    };
+    const url = await bucketService.getSignedUrl(filePath, 'text/csv');
 
-    const url = await s3.getSignedUrlPromise('putObject', params);
-
-    return formatJSONResponse(url);
+    return httpResponse(url);
   } catch (error) {
-    return formatJSONResponse(error);
+    return formatErrorResponse(error);
   }
 };
 
-export const main = middyfy(importProductsFile);
+export const main = importProductsFile;

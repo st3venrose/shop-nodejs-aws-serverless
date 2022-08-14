@@ -17,6 +17,6 @@ module.exports = {
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths , { prefix: '<rootDir>/' }),
   automock: false,
   setupFiles: [
-    "./src/__mocks__/setupJestMock.ts"
+    './src/__mocks__/setupJestMock.ts'
     ]
 };

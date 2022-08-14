@@ -1,6 +1,6 @@
 import { createLogger, format, transports } from 'winston';
 
-class WinstonLogger {
+class LoggerService {
   private readonly logger: any;
   private readonly format: any;
 
@@ -20,17 +20,17 @@ class WinstonLogger {
       });
   }
 
-  logInfo(message: string){
-    this.logger.info(message);
+  logInfo(...messages: string[]){
+    this.logger.info(...messages);
   }
 
-  logRequest(event: Object){
+  logLambdaEvent(event: Object){
     this.logInfo(`Incoming event: ${JSON.stringify(event)}`);
   }
 
-  logError(message: any){
-    this.logger.error(message);
+  logError(...messages: string[]){
+    this.logger.error(...messages);
   }
 }
 
-export const winstonLogger = new WinstonLogger();
+export const logger = new LoggerService();

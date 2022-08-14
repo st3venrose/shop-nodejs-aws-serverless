@@ -1,8 +1,8 @@
 import { Client, QueryConfig } from 'pg';
-import { Product } from '@models/product';
+import { Product, Stock } from '@models/product';
 import { DatabaseConnection } from '@services/databaseClient';
-import { winstonLogger } from "@utils/winstonLogger";
-import { ResourceNotFound } from "@utils/exceptions";
+import { logger } from '@services/loggerService';
+import { ResourceNotFound } from '@utils/exceptions';
 
 export class ProductService {
   private databaseClient: Client
@@ -25,18 +25,19 @@ export class ProductService {
   }
 
   async getProductsById(productId: string): Promise<Product> {
-      const query = {
-        text: `SELECT * FROM ${this.productTableName} p LEFT JOIN stock s ON p.id = s.product_id WHERE p.id = $1`,
-        values: [productId],
+
+    const query = {
+      text: `SELECT * FROM ${this.productTableName} p LEFT JOIN stock s ON p.id = s.product_id WHERE p.id = $1`,
+      values: [productId]
     } as QueryConfig;
     const result = await this.databaseClient.query(query);
     const product = result.rows[0];
 
     if (!product) {
-      throw new ResourceNotFound("Product not found.");
+      throw new ResourceNotFound('Product not found.');
     }
 
-    winstonLogger.logInfo(`Product id: ${product.id}`);
+    logger.logInfo(`Product id: ${product.id}`);
     return product;
   }
 
@@ -44,20 +45,25 @@ export class ProductService {
       try {
         await this.databaseClient.query('BEGIN');
 
-        const productInsert = `INSERT INTO ${this.productTableName}(title, description, price) VALUES ($1, $2, $3) RETURNING id`;
-        const productInsertValues = [product.title, product.description, product.price];
-        const stockInsert = `INSERT INTO ${this.stockTableName}(product_id, count) VALUES ($1, $2)`;
+        const productQuery = {
+          text: `INSERT INTO ${this.productTableName}(title, description, price) VALUES ($1, $2, $3) RETURNING id`,
+          values: [product.title, product.description, product.price]
+        } as QueryConfig;
 
-        const createdProduct = await this.databaseClient.query(productInsert, productInsertValues);
-        const stockInsertValues = [createdProduct.rows[0].id, product.count];
+        const createdProduct = await this.databaseClient.query<Product>(productQuery);
 
-        await this.databaseClient.query(stockInsert, stockInsertValues);
+        const stockQuery = {
+          text: `INSERT INTO ${this.stockTableName}(product_id, count) VALUES ($1, $2)`,
+          values: [createdProduct.rows[0].id, product.count]
+        } as QueryConfig;
+
+        await this.databaseClient.query<Stock>(stockQuery);
         await this.databaseClient.query('COMMIT');
 
         return createdProduct.rows[0].id;
-      } catch (e) {
+      } catch (err) {
         await this.databaseClient.query('ROLLBACK');
-        throw e;
+        throw err;
       }
   }
 }
