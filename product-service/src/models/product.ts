@@ -1,7 +1,13 @@
 export interface Product {
-  count: number,
-  description: string,
   id: string,
+  description: string,
   price: number,
-  title: string
+  title: string,
+  count: number
 }
+
+export interface Stock {
+  id: string,
+  count: number
+}
+

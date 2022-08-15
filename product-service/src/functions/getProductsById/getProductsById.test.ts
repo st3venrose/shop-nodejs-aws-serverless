@@ -1,10 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
 import productList from '@models/productList.json';
 import { ProductService } from '@services/productService'
-import { ResourceNotFound } from "@utils/exceptions";
+import { ResourceNotFound } from '@utils/exceptions';
 import { main } from './handler';
 
-describe("getProductsById", () => {
+describe('getProductsById', () => {
 
   it('should receive product by id', async () => {
     jest.spyOn(ProductService.prototype, 'getProductsById')

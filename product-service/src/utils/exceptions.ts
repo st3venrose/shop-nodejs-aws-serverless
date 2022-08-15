@@ -12,7 +12,7 @@ export class ResourceNotFound extends DomainError {
   }
 }
 
-export class InternalError extends DomainError {
+export class InternalServerError extends DomainError {
   constructor (message) {
     super(message);
   }

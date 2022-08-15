@@ -1,25 +1,27 @@
+import type { APIGatewayProxyResult } from 'aws-lambda'
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
 import { formatJSONResponse, formatErrorResponse } from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
-import { winstonLogger } from "@utils/winstonLogger";
+import { logger } from '@services/loggerService';
 import { ProductService } from '@services/productService'
-import { ResourceNotFound } from "@utils/exceptions";
+import { ResourceNotFound } from '@utils/exceptions';
 import schema from './schema';
 
-const getProductsById: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
+const getProductsById: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event): Promise<APIGatewayProxyResult> => {
   try {
-    winstonLogger.logRequest(event);
-
+    logger.logLambdaEvent(event);
     const productService = new ProductService();
     const { productId } = event.pathParameters;
 
     const product = await productService.getProductsById(productId);
 
+    logger.logInfo('saved product: ', JSON.stringify(product));
+
     return formatJSONResponse(product);
   } catch (err) {
     const { NOT_FOUND, INTERNAL_SERVER_ERROR } = StatusCodes
-    winstonLogger.logError(err);
+    logger.logError(err);
 
     if (err instanceof ResourceNotFound) {
       return formatErrorResponse(err.message, NOT_FOUND);

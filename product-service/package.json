@@ -6,7 +6,7 @@
   "scripts": {
     "sls:deploy:prod": "serverless deploy --stage prod",
     "sls:deploy:dev": "serverless deploy --stage dev",
-    "sls:package": "serverless package",
+    "sls:package": "serverless package --stage dev",
     "sls:offline": "serverless offline start --stage dev",
     "sls:swagger": "serverless generate-swagger --stage dev",
     "debug": "SET SLS_DEBUG=* && node --inspect node_modules\\serverless\\bin\\serverless offline",
@@ -25,12 +25,11 @@
     "winston": "^3.8.1"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.18.6",
-    "@babel/preset-typescript": "^7.18.6",
     "@serverless/typescript": "^3.0.0",
     "@types/aws-lambda": "^8.10.71",
     "@types/jest": "^28.1.6",
     "@types/node": "^14.14.25",
+    "@types/pg": "^8.6.5",
     "esbuild": "^0.14.11",
     "jest": "^28.1.3",
     "json-schema-to-ts": "^1.5.0",

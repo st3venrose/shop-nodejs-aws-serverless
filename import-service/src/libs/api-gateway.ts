@@ -1,15 +1,10 @@
-import type { APIGatewayProxyEvent, APIGatewayProxyResult, Handler } from "aws-lambda"
-import type { FromSchema } from "json-schema-to-ts";
+import type { APIGatewayProxyEvent, APIGatewayProxyResult, Handler } from 'aws-lambda'
+import type { FromSchema } from 'json-schema-to-ts';
 
 type ValidatedAPIGatewayProxyEvent<S> = Omit<APIGatewayProxyEvent, 'body'> & { body: FromSchema<S> }
 type ResponseHeader = { [header: string]: string | number | boolean; }
-export type ValidatedEventAPIGatewayProxyEvent<S> = Handler<ValidatedAPIGatewayProxyEvent<S>, APIGatewayProxyResult>;
 
-export interface ResponseModel {
-  statusCode: number,
-  headers: ResponseHeader,
-  body: string
-};
+export type ValidatedEventAPIGatewayProxyEvent<S> = Handler<ValidatedAPIGatewayProxyEvent<S>, APIGatewayProxyResult>
 
 const RESPONSE_HEADERS: ResponseHeader = {
   'Access-Control-Allow-Origin': '*', // Required for CORS support to work
@@ -17,8 +12,7 @@ const RESPONSE_HEADERS: ResponseHeader = {
   'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,DELETE,PUT'
 };
 
-
-const createResponse = (response: string, statusCode: number): ResponseModel => {
+const createResponse = (response: string, statusCode: number) => {
   return {
     statusCode: statusCode,
     headers: RESPONSE_HEADERS,
@@ -26,11 +20,15 @@ const createResponse = (response: string, statusCode: number): ResponseModel => 
   }
 }
 
-export const formatResponse = (response: any, statusCode: number = 200): ResponseModel => {
+export const formatJSONResponse = (response: any, statusCode: number = 200) => {
+  return createResponse(JSON.stringify(response), statusCode);
+}
+
+export const httpResponse = (response: any, statusCode: number = 200) => {
   return createResponse(response, statusCode);
 }
 
-export const formatErrorResponse = (message: string, statusCode: number = 500): ResponseModel => {
+export const formatErrorResponse = (message: string, statusCode: number = 500) => {
   const responseString = {
     message
   }

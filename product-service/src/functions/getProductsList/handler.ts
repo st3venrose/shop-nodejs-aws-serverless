@@ -1,21 +1,19 @@
+import type { APIGatewayProxyResult } from 'aws-lambda'
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { formatJSONResponse, formatErrorResponse } from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
-import { winstonLogger } from "@utils/winstonLogger";
+import { logger } from '@services/loggerService';
 import { ProductService } from '@services/productService'
 
-const getProductsList = async (event) => {
+const getProductsList = async (): Promise<APIGatewayProxyResult> => {
   try {
-    winstonLogger.logRequest(event);
-
     const productService = new ProductService();
     const products = await productService.getAllProducts()
   
     return formatJSONResponse(products);
   } catch (err) {
-    const { NOT_FOUND, INTERNAL_SERVER_ERROR } = StatusCodes
-    winstonLogger.logError(err);
-    return formatErrorResponse(ReasonPhrases.INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR);
+    logger.logError(err);
+    return formatErrorResponse(ReasonPhrases.INTERNAL_SERVER_ERROR, StatusCodes.INTERNAL_SERVER_ERROR);
   }
 
 };

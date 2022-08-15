@@ -2,7 +2,6 @@ import type { AWS } from '@serverless/typescript';
 
 import importProductsFile from '@functions/importProductsFile';
 import importFileParser from '@functions/importFileParser';
-// import { AWS_CONFIG } from '@utils/constants';
 
 const serverlessConfiguration: AWS = {
   service: 'import-service',
@@ -21,7 +20,8 @@ const serverlessConfiguration: AWS = {
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
-      BUCKET_NAME: 'import-service-products-bucket-${opt:stage}',
+      SERVICE_PREFIX: '${self:service}',
+      BUCKET_NAME: '${self:provider.environment.SERVICE_PREFIX}-product-bucket',
       REGION: '${self:provider.region}',
       CATALOG_QUEUE_URL: {
         'Fn::ImportValue': 'catalogItemsQueueUrl-${opt:stage}',
@@ -32,7 +32,7 @@ const serverlessConfiguration: AWS = {
     },
     iam: {
       role: {
-        name: 'import-service-access-to-products-bucket-${self:provider.stage}-role',
+        name: '${self:provider.environment.SERVICE_PREFIX}-product-bucket-${self:provider.stage}-role',
         statements: [
           {
             Effect: 'Allow',
@@ -89,7 +89,7 @@ const serverlessConfiguration: AWS = {
   },
   resources: {
     Resources: {
-      ShopNodejsImportServiceBucket: {
+      ImportServiceProductBucket: {
           Type: 'AWS::S3::Bucket',
           Properties: {
             BucketName: '${self:provider.environment.BUCKET_NAME}',

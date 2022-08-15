@@ -1,5 +1,5 @@
 export default {
-  type: "object",
+  type: 'object',
   name: 'GetProductById',
   description: 'Validation model for Creating Posts',
   properties: {
