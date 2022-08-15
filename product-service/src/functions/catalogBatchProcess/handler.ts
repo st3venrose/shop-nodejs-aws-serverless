@@ -1,6 +1,6 @@
 import { SNS } from 'aws-sdk';
 import { SQSHandler, SQSEvent } from 'aws-lambda';
-import { winstonLogger } from '@utils/winstonLogger';
+import { logger } from '@services/loggerService';
 import { ProductService } from '@services/productService'
 import { Product } from '@models/product';
 
@@ -14,26 +14,26 @@ const sendEmailNotification = async (product: Product): Promise<void> => {
       TopicArn: SNS_CREATE_PRODUCT_TOPIC_ARN,
     };
 
-    winstonLogger.logInfo('SNS params: ', JSON.stringify(params));
+    logger.logInfo('SNS params: ', JSON.stringify(params));
     const data = await snsClient.publish(params).promise();
-    winstonLogger.logInfo('SNS message after publish: ', JSON.stringify(data));
+    logger.logInfo('SNS message after publish: ', JSON.stringify(data));
 }
 
 const catalogBatchProcess: SQSHandler = async (event: SQSEvent): Promise<void> => {
   try {
-    winstonLogger.logRequest(event);
+    logger.logLambdaEvent(event);
     const service = new ProductService();
 
     for (const record of event.Records) {
       const product = JSON.parse(record.body);
       const productId = await service.createProduct(product);
-  
-      winstonLogger.logInfo('product is created with the following id: ', productId);
-  
+
+      logger.logInfo('product is created with the following id: ', productId);
+
       await sendEmailNotification(product);
     }
   } catch (err) {
-    winstonLogger.logError(err);
+      logger.logError(err);
   }
 };
 

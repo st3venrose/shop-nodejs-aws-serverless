@@ -20,16 +20,23 @@ class LoggerService {
       });
   }
 
-  logInfo(...messages: string[]){
-    this.logger.info(...messages);
+  logInfo(...messages: string[]) {
+    this.logger.info(this.convertArrayToString(messages));
   }
 
-  logLambdaEvent(event: Object){
+  logLambdaEvent(event: Record<string, unknown>) {
     this.logInfo(`Incoming event: ${JSON.stringify(event)}`);
   }
 
-  logError(...messages: string[]){
-    this.logger.error(...messages);
+  logError(...messages: string[]) {
+    this.logger.error(this.convertArrayToString(messages));
+  }
+
+  private convertArrayToString(messages: string[]): string {
+    return messages.reduce(
+      (previousValue, currentValue) => previousValue + currentValue,
+      ''
+    );
   }
 }
 

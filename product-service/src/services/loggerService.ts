@@ -21,15 +21,22 @@ class LoggerService {
   }
 
   logInfo(...messages: string[]): void {
-    this.logger.info(...messages);
+    this.logger.info(this.convertArrayToString(messages));
   }
 
-  logLambdaEvent(event: Object): void {
+  logLambdaEvent(event: any): void {
     this.logInfo(`Incoming event: ${JSON.stringify(event)}`);
   }
 
-  logError(message: string): void {
-    this.logger.error(message);
+  logError(...messages: string[]) {
+    this.logger.error(this.convertArrayToString(messages));
+  }
+
+  private convertArrayToString(messages: string[]): string {
+    return messages.reduce(
+      (previousValue, currentValue) => previousValue + currentValue,
+      ''
+    );
   }
 }
 

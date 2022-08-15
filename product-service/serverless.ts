@@ -87,7 +87,7 @@ const serverlessConfiguration: AWS = {
       title: 'Product service',
       apiType: 'http',
       schemes: ['https', 'http'],
-      typefiles: ['./src/models/api-types.d.ts', './src/models/product.ts'],
+      typefiles: ['./src/models/api-models.d.ts', './src/models/product.ts'],
       basePath: '/${self:provider.stage}',
       generateSwaggerOnDeploy: false
     },
@@ -122,7 +122,7 @@ const serverlessConfiguration: AWS = {
           Endpoint: '${env:EMAIL_ADDRESS2}',
           TopicArn: { Ref : 'createProductTopic' },
           FilterPolicy: {
-            price: [{ numeric: [ ">=", 1000 ] }]
+            price: [{ numeric: [ '>=', 1000 ] }]
           }
         }
       }
