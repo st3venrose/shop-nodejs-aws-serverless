@@ -21,7 +21,7 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       SERVICE_PREFIX: '${self:service}',
-      BUCKET_NAME: '${self:provider.environment.SERVICE_PREFIX}-product-bucket',
+      BUCKET_NAME: '${self:provider.environment.SERVICE_PREFIX}-product-bucket-${self:provider.stage}',
       REGION: '${self:provider.region}',
       CATALOG_QUEUE_URL: {
         'Fn::ImportValue': 'catalogItemsQueueUrl-${opt:stage}',
@@ -112,9 +112,39 @@ const serverlessConfiguration: AWS = {
               ]
             }
           }
+        },
+        GatewayResponse4XX: {
+          Type: "AWS::ApiGateway::GatewayResponse",
+          Properties: {
+            ResponseParameters: {
+              'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+              'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+              // 'gatewayresponse.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+              'gatewayresponse.header.WWW-Authenticate': "'Basic'"
+            },
+            ResponseType: "MISSING_AUTHENTICATION_TOKEN",
+            RestApiId: {
+              Ref: "ApiGatewayRestApi"
+            },
+            // StatusCode: "401"
+          }
+        },
+        GatewayResponseDefault5XX: {
+            Type: 'AWS::ApiGateway::GatewayResponse',
+            Properties: {
+              ResponseParameters:{
+                'gatewayresponse.header.Access-Control-Allow-Origin': 'method.request.header.Origin',
+                'gatewayresponse.header.Access-Control-Allow-Credentials': "'true'",
+                'gatewayresponse.header.Access-Control-Allow-Headers': "'*'"
+              },
+               ResponseType: 'DEFAULT_5XX',
+               RestApiId: {
+                Ref: 'ApiGatewayRestApi'
+              }
+            }
+          }
         }
       }
-    }
 };
 
 module.exports = serverlessConfiguration;

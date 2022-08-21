@@ -27,7 +27,8 @@ const serverlessConfiguration: AWS = {
       PGDATABASE: '${env:PGDATABASE}',
       PGPASSWORD: '${env:PGPASSWORD}',
       PGPORT: '${env:PGPORT}',
-      SNS_CREATE_PRODUCT_TOPIC_ARN: { Ref : 'createProductTopic' }
+      SNS_CREATE_PRODUCT_TOPIC_ARN: { Ref : 'createProductTopic' },
+      BASIC_AUTHORIZER_LAMBDA_ARN: { Ref : 'createProductTopic' }
     },
     iam: {
       role: {
@@ -104,7 +105,7 @@ const serverlessConfiguration: AWS = {
       createProductTopic: {
         Type: 'AWS::SNS::Topic',
         Properties: {
-          TopicName: 'createProductTopic'
+          TopicName: 'createProductTopic-${opt:stage}'
         }
       },
       createProductTopicSubscription: {
