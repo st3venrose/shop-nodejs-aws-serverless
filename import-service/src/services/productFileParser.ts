@@ -2,20 +2,25 @@ import csv from 'csv-parser';
 import { logger } from '@services/loggerService';
 import { BUCKET_FOLDERS } from '@utils/constants';
 import { BucketService } from '@services/bucketService';
+import { SQSService } from "@services/SQSService";
 import { Product } from '@models/product';
 
 const { REGION, BUCKET_NAME } = process.env;
 
 export class ProductFileParser {
   private bucketService: BucketService;
+  private sqsService: SQSService;
 
   constructor() {
     this.bucketService = new BucketService(REGION, BUCKET_NAME);
+    this.sqsService = new SQSService();
   }
 
   async parseUploadedCsv(key: string): Promise<void> {
     const products = await this.getProductsFromCsv(key);
     logger.logInfo('parsed products: ', JSON.stringify(products));
+
+    await this.sqsService.sendSqsMessage(products);
   }
 
   private async getProductsFromCsv(key: string): Promise<Product[]> {

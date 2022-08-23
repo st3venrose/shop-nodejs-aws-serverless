@@ -33,7 +33,7 @@ describe('getProductsById', () => {
     const response = await main(event, null);
     const parsedResponseBody = JSON.parse(response.body);
 
-    expect(parsedResponseBody.message).toEqual('\tProduct not found.');
+    expect(parsedResponseBody.message).toEqual('Product not found.');
     expect(response.statusCode).toEqual(StatusCodes.NOT_FOUND);
   });
 });

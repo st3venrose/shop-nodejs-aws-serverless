@@ -8,7 +8,7 @@ export type ValidatedEventAPIGatewayProxyEvent<S> = Handler<ValidatedAPIGatewayP
 
 const RESPONSE_HEADERS: ResponseHeader = {
   'Access-Control-Allow-Origin': '*', // Required for CORS support to work
-  'Access-Control-Allow-Credentials': false, // Required for cookies, authorization headers with HTTPS
+  'Access-Control-Allow-Credentials': true, // Required for cookies, authorization headers with HTTPS
   'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,DELETE,PUT'
 };
 
@@ -20,15 +20,15 @@ const createResponse = (response: string, statusCode: number) => {
   }
 }
 
-export const formatJSONResponse = (response: any, statusCode: number = 200) => {
+export const formatJSONResponse = (response: any, statusCode = 200) => {
   return createResponse(JSON.stringify(response), statusCode);
 }
 
-export const httpResponse = (response: any, statusCode: number = 200) => {
+export const httpResponse = (response: any, statusCode = 200) => {
   return createResponse(response, statusCode);
 }
 
-export const formatErrorResponse = (message: string, statusCode: number = 500) => {
+export const formatErrorResponse = (message: string, statusCode = 500) => {
   const responseString = {
     message
   }

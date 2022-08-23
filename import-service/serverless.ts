@@ -21,8 +21,14 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       SERVICE_PREFIX: '${self:service}',
-      BUCKET_NAME: '${self:provider.environment.SERVICE_PREFIX}-product-bucket',
-      REGION: '${self:provider.region}'
+      BUCKET_NAME: '${self:provider.environment.SERVICE_PREFIX}-product-bucket-${self:provider.stage}',
+      REGION: '${self:provider.region}',
+      CATALOG_QUEUE_URL: {
+        'Fn::ImportValue': 'catalogItemsQueueUrl-${opt:stage}',
+      },
+      CATALOG_QUEUE_ARN: {
+        'Fn::ImportValue': 'catalogItemsQueueArn-${opt:stage}',
+      },
     },
     iam: {
       role: {
@@ -43,6 +49,16 @@ const serverlessConfiguration: AWS = {
             Resource: [
               'arn:aws:s3:::${self:provider.environment.BUCKET_NAME}/*'
             ]
+          },
+          {
+            Effect: 'Allow',
+            Action: [
+              'sqs:SendMessage',
+              'sqs:ReceiveMessage',
+            ],
+            Resource: {
+                'Fn::ImportValue': 'catalogItemsQueueArn-${opt:stage}',
+              },
           }
         ]
       }
@@ -63,7 +79,7 @@ const serverlessConfiguration: AWS = {
       concurrency: 10,
     },
     autoswagger: {
-      title: 'Product service',
+      title: 'Import service',
       apiType: 'http',
       schemes: ['https', 'http'],
       basePath: '/${self:provider.stage}',
@@ -94,6 +110,32 @@ const serverlessConfiguration: AWS = {
                   ],
                 }
               ]
+            }
+          }
+        },
+      GatewayResponse4XX: {
+        Type: "AWS::ApiGateway::GatewayResponse",
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+          },
+          ResponseType: 'DEFAULT_4XX',
+          RestApiId: {
+            Ref: "ApiGatewayRestApi"
+          },
+        }
+      },
+      GatewayResponseDefault5XX: {
+          Type: 'AWS::ApiGateway::GatewayResponse',
+          Properties: {
+            ResponseParameters:{
+              'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+              'gatewayresponse.header.Access-Control-Allow-Headers': "'*'"
+            },
+            ResponseType: 'DEFAULT_5XX',
+            RestApiId: {
+              Ref: 'ApiGatewayRestApi'
             }
           }
         }
