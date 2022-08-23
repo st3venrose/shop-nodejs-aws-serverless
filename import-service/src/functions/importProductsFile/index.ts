@@ -7,6 +7,7 @@ export default {
       http: {
         method: 'get',
         path: 'import',
+        cors: true,
         authorizer: {
           name: 'basicAuthorizer',
           arn: {

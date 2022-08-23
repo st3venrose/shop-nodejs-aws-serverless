@@ -113,38 +113,34 @@ const serverlessConfiguration: AWS = {
             }
           }
         },
-        GatewayResponse4XX: {
-          Type: "AWS::ApiGateway::GatewayResponse",
+      GatewayResponse4XX: {
+        Type: "AWS::ApiGateway::GatewayResponse",
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+          },
+          ResponseType: 'DEFAULT_4XX',
+          RestApiId: {
+            Ref: "ApiGatewayRestApi"
+          },
+        }
+      },
+      GatewayResponseDefault5XX: {
+          Type: 'AWS::ApiGateway::GatewayResponse',
           Properties: {
-            ResponseParameters: {
+            ResponseParameters:{
               'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
-              'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
-              // 'gatewayresponse.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-              'gatewayresponse.header.WWW-Authenticate': "'Basic'"
+              'gatewayresponse.header.Access-Control-Allow-Headers': "'*'"
             },
-            ResponseType: "MISSING_AUTHENTICATION_TOKEN",
+            ResponseType: 'DEFAULT_5XX',
             RestApiId: {
-              Ref: "ApiGatewayRestApi"
-            },
-            // StatusCode: "401"
-          }
-        },
-        GatewayResponseDefault5XX: {
-            Type: 'AWS::ApiGateway::GatewayResponse',
-            Properties: {
-              ResponseParameters:{
-                'gatewayresponse.header.Access-Control-Allow-Origin': 'method.request.header.Origin',
-                'gatewayresponse.header.Access-Control-Allow-Credentials': "'true'",
-                'gatewayresponse.header.Access-Control-Allow-Headers': "'*'"
-              },
-               ResponseType: 'DEFAULT_5XX',
-               RestApiId: {
-                Ref: 'ApiGatewayRestApi'
-              }
+              Ref: 'ApiGatewayRestApi'
             }
           }
         }
       }
+    }
 };
 
 module.exports = serverlessConfiguration;
