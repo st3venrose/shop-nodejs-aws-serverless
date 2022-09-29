@@ -22,7 +22,13 @@ const serverlessConfiguration: AWS = {
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       SERVICE_PREFIX: '${self:service}',
       BUCKET_NAME: '${self:provider.environment.SERVICE_PREFIX}-product-bucket',
-      REGION: '${self:provider.region}'
+      REGION: '${self:provider.region}',
+      CATALOG_QUEUE_URL: {
+        'Fn::ImportValue': 'catalogItemsQueueUrl-${opt:stage}',
+      },
+      CATALOG_QUEUE_ARN: {
+        'Fn::ImportValue': 'catalogItemsQueueArn-${opt:stage}',
+      },
     },
     iam: {
       role: {
@@ -43,6 +49,16 @@ const serverlessConfiguration: AWS = {
             Resource: [
               'arn:aws:s3:::${self:provider.environment.BUCKET_NAME}/*'
             ]
+          },
+          {
+            Effect: 'Allow',
+            Action: [
+              'sqs:SendMessage',
+              'sqs:ReceiveMessage',
+            ],
+            Resource: {
+                'Fn::ImportValue': 'catalogItemsQueueArn-${opt:stage}',
+              },
           }
         ]
       }
@@ -63,7 +79,7 @@ const serverlessConfiguration: AWS = {
       concurrency: 10,
     },
     autoswagger: {
-      title: 'Product service',
+      title: 'Import service',
       apiType: 'http',
       schemes: ['https', 'http'],
       basePath: '/${self:provider.stage}',
